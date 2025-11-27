@@ -11,7 +11,7 @@
   const GTM_ID   = (cfg.gtm || 'GTM-XXXX').trim();
   const PRIV_URL = (cfg.privacy || '#').trim();
   const IMPR_URL = (cfg.imprint || '#').trim();
-  const BRAND    = (cfg.brand || '#0d6efd').trim();
+  const BRAND    = (cfg.brand || '#000').trim();
 
 
   /* --------------------------------------------------------
