@@ -387,18 +387,21 @@
       const prefs = { statistics: true, marketing: true };
       applyConsent(prefs, 'consent_accept_all');
       closeBanner(banner);
+      location.reload();
     });
-
+    
     btnSel.addEventListener('click', () => {
       const prefs = { statistics: stats.checked, marketing: mkt.checked };
       applyConsent(prefs, 'consent_accept_selection');
       closeBanner(banner);
+      location.reload();
     });
-
+    
     btnNo.addEventListener('click', () => {
       const prefs = { statistics: false, marketing: false };
       applyConsent(prefs, 'consent_decline_all');
       closeBanner(banner);
+      location.reload();
     });
 
 
