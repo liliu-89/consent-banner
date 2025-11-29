@@ -338,62 +338,72 @@
    * ------------------------------------------------------ */
 
   function injectBanner() {
-    // CSS
+    // CSS einfügen
     const style = document.createElement('style');
     style.textContent = CSS;
     document.head.appendChild(style);
 
-    // HTML
+    // HTML einfügen
     const wrap = document.createElement('div');
     wrap.innerHTML = HTML;
     const banner = wrap.firstElementChild;
     document.body.appendChild(banner);
 
-    // Elements
-    const box        = banner.querySelector('.cb-box');
-    const stats      = banner.querySelector('#toggle-statistics');
-    const mkt        = banner.querySelector('#toggle-marketing');
-    const btnAll     = banner.querySelector('#btn-accept-all');
-    const btnSel     = banner.querySelector('#btn-accept-selection');
-    const btnNo      = banner.querySelector('#btn-decline-all');
+    // Brave-Fix 1: prüfen, ob die Box existiert
+    const box = banner.querySelector('.cb-box');
+    if (!box) {
+      console.warn('[Consent] Banner blockiert (cb-box fehlt) – Scroll-Lock deaktiviert');
+      document.body.style.overflow = '';
+      return;
+    }
 
-    const toggleBtn  = banner.querySelector('#cb-settings-toggle');
-    const wrapper    = banner.querySelector('#cb-switches-wrapper');
+    // Elemente
+    const stats = banner.querySelector('#toggle-statistics');
+    const mkt = banner.querySelector('#toggle-marketing');
+    const btnAll = banner.querySelector('#btn-accept-all');
+    const btnSel = banner.querySelector('#btn-accept-selection');
+    const btnNo = banner.querySelector('#btn-decline-all');
+    const toggleBtn = banner.querySelector('#cb-settings-toggle');
+    const wrapper = banner.querySelector('#cb-switches-wrapper');
 
-    // Restore?
+    // Restore
     const stored = localStorage.getItem(CONSENT_SET) === 'true';
 
     if (stored) {
       try {
         const prefs = JSON.parse(localStorage.getItem(CONSENT_KEY) || '{}');
         stats.checked = !!prefs.statistics;
-        mkt.checked   = !!prefs.marketing;
+        mkt.checked = !!prefs.marketing;
         applyConsent(prefs, 'consent_restore');
         banner.hidden = true;
         document.body.style.overflow = '';
       } catch {
         banner.hidden = false;
-      }
-    } else {
-      banner.hidden = false;
+        }
+      } else {
+        banner.hidden = false;
 
-      requestAnimationFrame(() => {
-        const isVisible = banner.offsetParent !== null;
-        
-        if (!isVisible) {
-          console.warn('[Consent] Banner blockiert – kein Scroll-Lock.');
-          document.body.style.overflow = '';
-          return;
+        requestAnimationFrame(() => {
+          // Brave-Fix 2: prüfen, ob Banner wirklich sichtbar ist
+          const style = window.getComputedStyle(banner);
+          const isVisible =
+            style.display !== 'none' &&
+            style.visibility !== 'hidden' &&
+            banner.offsetHeight > 0 &&
+            banner.offsetWidth > 0;
+
+          if (!isVisible) {
+            console.warn('[Consent] Banner blockiert – Scroll-Lock deaktiviert');
+            document.body.style.overflow = '';
+            return;
+          }
+
+          document.body.style.overflow = 'hidden';
+          box.classList.add('visible');
+          });
         }
 
-        document.body.style.overflow = 'hidden';
-        box.classList.add('visible');
-      });
-    }
-
-
-    /* -------- BUTTONS -------- */
-
+    // Buttons
     btnAll.addEventListener('click', () => {
       const prefs = { statistics: true, marketing: true };
       applyConsent(prefs, 'consent_accept_all');
@@ -412,36 +422,52 @@
       closeBanner(banner);
     });
 
-
-    /* -------- COLLAPSIBLE SETTINGS -------- */
-
+    // Collapsible
     toggleBtn.addEventListener('click', () => {
       const open = !wrapper.hidden;
-
-      if (open) {
-        wrapper.hidden = true;
-        toggleBtn.textContent = 'Einstellungen anzeigen';
-      } else {
-        wrapper.hidden = false;
-        toggleBtn.textContent = 'Einstellungen ausblenden';
-      }
+      wrapper.hidden = open;
+      toggleBtn.textContent = open
+        ? 'Einstellungen anzeigen'
+        : 'Einstellungen ausblenden';
     });
 
-
-    /* -------- PUBLIC API -------- */
-
+    // Public API fürs Oeffnen
     window.openConsentBanner = () => {
       banner.hidden = false;
-      document.body.style.overflow = 'hidden';
+
+      requestAnimationFrame(() => {
+        const style = window.getComputedStyle(banner);
+        const isVisible =
+          style.display !== 'none' &&
+          style.visibility !== 'hidden' &&
+          banner.offsetHeight > 0 &&
+          banner.offsetWidth > 0;
+
+        if (!isVisible) {
+          console.warn('[Consent] Banner blockiert – Scroll-Lock deaktiviert');
+          document.body.style.overflow = '';
+          return;
+        }
+
+        document.body.style.overflow = 'hidden';
+        box.classList.add('visible');
+      });
 
       try {
         const prefs = JSON.parse(localStorage.getItem(CONSENT_KEY) || '{}');
         stats.checked = !!prefs.statistics;
-        mkt.checked   = !!prefs.marketing;
+        mkt.checked = !!prefs.marketing;
       } catch {}
-
-      requestAnimationFrame(() => box.classList.add('visible'));
     };
+
+    // Brave-Fix 3: fallback entsperren, falls etwas schiefgeht
+    setTimeout(() => {
+      const visibleCheck = banner.querySelector('.cb-box');
+      if (!visibleCheck) {
+        console.warn('[Consent] Fallback Entsperrung');
+        document.body.style.overflow = '';
+      }
+    }, 400);
   }
 
 
