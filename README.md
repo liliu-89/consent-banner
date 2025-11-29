@@ -11,7 +11,7 @@ Er wird über eine einzelne JavaScript-Datei eingebunden, benötigt keine weiter
 Fügen Sie auf Ihrer Website folgenden Code ein (z. B. im `<head>` oder direkt vor `</body>`):
 
 ```html
-<script src="https://cdn.jsdelivr.net/gh/liliu-89/consent-banner@main/consent.js"
+<script src="https://cdn.jsdelivr.net/gh/liliu-89/consent-banner/consent.js?ver=auto"
   data-gtm="GTM-XXXX"
   data-privacy="/datenschutz"
   data-imprint="/impressum"
