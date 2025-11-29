@@ -376,8 +376,19 @@
       }
     } else {
       banner.hidden = false;
-      document.body.style.overflow = 'hidden';
-      requestAnimationFrame(() => box.classList.add('visible'));
+
+      requestAnimationFrame(() => {
+        const isVisible = banner.offsetParent !== null;
+        
+        if (!isVisible) {
+          console.warn('[Consent] Banner blockiert – kein Scroll-Lock.');
+          document.body.style.overflow = '';
+          return;
+        }
+
+        document.body.style.overflow = 'hidden';
+        box.classList.add('visible');
+      });
     }
 
 
