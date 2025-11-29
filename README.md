@@ -119,8 +119,8 @@ Der Banner erscheint als moderner Modal-Dialog (zentriert auf der Seite) mit Ove
 Vorteile:
 
 * sofort sichtbar
-* nicht störend, aber nicht übersehbar
-* Hintergrund ist gesperrt (Scroll-Lock)
+* nicht übersehbar
+* Hintergrund ist gesperrt, aber ohne Scroll-Lock
 * Nutzer muss aktiv entscheiden
 
 Studien zeigen:
